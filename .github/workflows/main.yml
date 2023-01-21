@@ -7,10 +7,10 @@ jobs:
     # The type of runner that the job will run on
     runs-on: windows-latest
     steps:
+      - uses: matlab-actions/run-tests@v1.4.1
       - name: Run MATLAB Tests
         # You may pin to the exact commit or the version.
         # uses: matlab-actions/run-tests@6cfe7930996fecaa230173e429a830b29f5fec8f
-      - uses: matlab-actions/run-tests@v1.4.1
       #- with:
           # Location of the folder containing source code
           #source-folder: # optional, default is 
