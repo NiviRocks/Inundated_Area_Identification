@@ -6,7 +6,7 @@
 - This threshold is used to find the water pixel
 - Then region growing around the water pixel 
 #
-P.s.: Both global theshold _t_ 
+P.s.: Both global theshold _t_ and mean difference acceptable range _x_ are choosen by trial and error
 
 ### Limitation
 - Highly depenable on image and its size
