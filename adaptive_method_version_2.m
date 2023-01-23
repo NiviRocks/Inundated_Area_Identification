@@ -11,11 +11,7 @@ new_IMG=zeros(sz);
 
 t=0.2; %assumed threshold 
 mean_diff = 0.1 ; % mean difference range
-% { t=0.3186 (-4:4) reduced by 0.01 for 4400:4800,3900:4300} (output 2)
-% { t=0.42 (-3:3) reduced by 0.01 for 4200:4600,3700:4100}
-% { t=0.3 (-3:3) reduced by 0.01 for 4000:4800,3500:4300} (output 1)
-% { t=0.2 (-3:3) increased by 0.01 for 4400:4800,3900:4300 and mean
-% difference range increased by } BEST (output 3)
+
 Vmin = 1; % minimum pixel value that is water
 prev_m=0; ct=0;
 
@@ -72,16 +68,11 @@ function [result,mean] = isWater(x,y,IMG,sz,t)
             % if pixel within image
             if (x+j)>1 && (x+j)<sz(1) && (y+k)>1 && (y+k)<sz(2)
                 % if pixel value in threshold
-                if abs(IMG(x,y)-IMG(x+j,y+k))<=t %&& abs(IMG(x,y)-IMG(x+j,y+k))>= Vmin     
+                if abs(IMG(x,y)-IMG(x+j,y+k))<=t 
                     count = count+1; % count water pixels
                     mean=mean+IMG(x+j,y+k);
-                else
-                    %fprintf("\nin2 vmin %f t %f",abs(IMG(x,y)-IMG(x+j,y+k)),abs(IMG(x,y)-IMG(x+j,y+k)));
                 end
-            else
-                %fprintf("in1 %d %d\n",x,y);
             end
-            %fprintf("mean %f\n",mean);
         end
     end
     mean=mean/count;
@@ -91,3 +82,10 @@ function [result,mean] = isWater(x,y,IMG,sz,t)
         result = 0; % false
     end
 end 
+
+
+% { t=0.3186 (-4:4) reduced by 0.01 for 4400:4800,3900:4300} (output 2)
+% { t=0.42 (-3:3) reduced by 0.01 for 4200:4600,3700:4100}
+% { t=0.3 (-3:3) reduced by 0.01 for 4000:4800,3500:4300} (output 1)
+% { t=0.2 (-3:3) increased by 0.01 for 4400:4800,3900:4300 and mean
+% difference range increased by } BEST (output 3)
