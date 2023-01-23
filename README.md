@@ -6,12 +6,10 @@
 - This threshold is used to find the water pixel
 - Then region growing around the water pixel 
 #
-#
-P.s.: Both global theshold _t_ and mean difference acceptable range _x_ are choosen by trial and error
+P.s.: Both global theshold _t_ 
 
 ### Limitation
-- Global threshold and mean difference acceptable range keep changing for different image
-- This method either causes overfitting or underfitting.
+- Highly depenable on image and its size
 
 ### Follow Up Work
-- Need for a algorithm to determine _t_ and _x_ without trial and error method applicable for all kind of data.
+- Need for a algorithm to determine _t_ without trial and error method applicable for all kind of data.
