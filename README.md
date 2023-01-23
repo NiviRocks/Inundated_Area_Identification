@@ -1,5 +1,5 @@
 # Inundated_Area_Identification
-## Version 1
+## Version 2
 ### Key Points are:
 - Image pixel values converted into 0-1 range
 - The Threshold, _t_ is selected 
