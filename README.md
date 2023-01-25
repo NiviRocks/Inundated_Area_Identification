@@ -1,15 +1,16 @@
 # Inundated_Area_Identification
-## Version 2
+## Version 3
 ### Key Points are:
 - Image pixel values converted into 0-1 range
-- The Threshold, _t_ is selected 
-- This threshold is used to find the water pixel
-- Then region growing around the water pixel 
-#
-P.s.: Both global theshold _t_ and mean difference acceptable range _x_ are choosen by trial and error
+- Minimum pixel, _Vmin_ intensity value is found from the whole image
+- The Global Threshold, _t_ is selected 
+- This threshold is used to find the water pixel, global range for water pixel is [Vmin,Vmin+t]
+- Window around water pixel is considered
+- Local threshold _ø_ is increased slowly till mean difference _x_ of the above window is greater than ∆d
+- Then region growing around the water pixel using local threshold _ø_
 
 ### Limitation
-- Highly depenable on image and its size
+- Causes overfitting 
 
 ### Follow Up Work
-- Need for a algorithm to determine _t_ without trial and error method applicable for all kind of data.
+- Reduce overfitting
