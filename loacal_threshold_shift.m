@@ -4,11 +4,9 @@ inundated_result = im2double(imread('inundation_image.tif'));
 
 IMG_post = rescale(IMG_post); %rescale 0-1
 IMG_post = histeq(IMG_post);
-%IMG_post = modefilt(IMG_post);
 
 IMG_pre = rescale(IMG_pre); %rescale 0-1
 IMG_pre = histeq(IMG_pre); 
-%IMG_pre = modefilt(IMG_pre);
 
 [r,c] = size(IMG_pre); %size of post and pre image is the same
 
@@ -34,21 +32,21 @@ figure, imshow(imadjust(IMG_inundated_mode));
 figure, imshow(imadjust(inundated_result));
 
 %save images
-%imwrite(new_IMG_post,'IMG_post_eastMid.tiff','tiff');
-%imwrite(new_IMG_pre,'IMG_pre_eastMid.tiff','tiff');
-%imwrite(IMG_inundated,'IMG_inundated_eastMid.tiff','tiff');
-%imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tiff','tiff');
+imwrite(new_IMG_post,'IMG_post_eastMid.tiff','tiff');
+imwrite(new_IMG_pre,'IMG_pre_eastMid.tiff','tiff');
+imwrite(IMG_inundated,'IMG_inundated_eastMid.tiff','tiff');
+imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tiff','tiff');
 
 %find area
 pre_area=findArea(new_IMG_pre,r,c)/(10.^6);
 inundated_area=findArea(IMG_inundated_mode,r,c)/(10.^6); 
-%write area in file
+write area in file
 s1=strcat("Total image area: ", num2str(r*c/(10.^4)), " sq km");
 s2=strcat("Natural water body area: ",num2str(pre_area)," sq km");
 s3=strcat("Inundated area: ",num2str(inundated_area)," sq km");
-%writelines(s1,"area_eastMid.txt"); 
-%writelines(s2,"area_eastMid.txt",WriteMode="append");
-%writelines(s3,"area_eastMid.txt",WriteMode="append");
+writelines(s1,"area_eastMid.txt"); 
+writelines(s2,"area_eastMid.txt",WriteMode="append");
+writelines(s3,"area_eastMid.txt",WriteMode="append");
 
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
