@@ -1,9 +1,6 @@
 IMG_post = im2double(imread('subsetpost.tif'));
 IMG_pre = im2double(imread('subsetpre.tif'));
 inundated_result = im2double(imread('inundation_image.tif'));
-%IMG_post=IMG_post(5000:6500,5000:5500); %cropping a portion
-%IMG_pre=IMG_pre(5000:6500,5000:5500);
-%inundated_result=inundated_result(5000:6500,5000:5500);
 
 IMG_post = rescale(IMG_post); %rescale 0-1
 IMG_post = histeq(IMG_post);
@@ -58,17 +55,12 @@ function [new_IMG]=main(IMG,r,c,Vmin,t)
     new_IMG=zeros(r,c);
     for y = 1:c
         for x = 1:r
-            %fprintf("x %d y %d",x,y);
             if ~new_IMG(x,y) %if pixel not marked water
                 if IMG(x,y)>=Vmin && IMG(x,y)<=t+Vmin %check within threshold
                     [new_t]=threshold_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
                     if new_t ~=-1 %if new_t == -1 then pixel is not water
-                        %fprintf("in1");
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
-                        if mod(x,1000)==0 && mod(y,500)==0
-                            %figure, imshow(imadjust(new_IMG));
-                        end
                     end
                 end
             end
@@ -107,14 +99,10 @@ function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
     if isw1==0 || isw2==0 %if pixel not water return -1
         new_t=-1;
     else
-        %fprintf("in2");
         while abs(m1-m2)>=0.05 && isw1 && isw2 
             m1=m2; isw1=isw2;
             new_t=new_t+0.0001;
             [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin);
-        end
-        if mod(x,1000)==0 && mod(y,500)==0
-            fprintf("x %d y %d new t %f\n",x,y,new_t);
         end
     end
 end
@@ -130,4 +118,10 @@ function [area]=findArea(IMG,r,c)
         end
     end
 end
+
+
+
+%IMG_post=IMG_post(5000:6500,5000:5500); %cropping a portion
+%IMG_pre=IMG_pre(5000:6500,5000:5500);
+%inundated_result=inundated_result(5000:6500,5000:5500);
                  
