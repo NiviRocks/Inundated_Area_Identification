@@ -1,6 +1,6 @@
 IMG_post = double(imread('subsetpost.tif'));
 IMG_pre = double(imread('subsetpre.tif'));
-%fprintf("%d %d\n",IMG_pre(300,200),IMG_post(300,200));
+
 %IMG_post=IMG_post(5000:6500,5000:5500); %cropping a portion
 %IMG_pre=IMG_pre(5000:6500,5000:5500);
 
@@ -21,8 +21,8 @@ new_IMG_pre=main(IMG_pre,r,c,Vmin_pre,t_pre);
 fprintf("Done\n");
 IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
 
-%figure, imshow(imadjust(uint8(IMG_post)));
-%figure, imshow(imadjust(uint8(IMG_pre)));
+figure, imshow(imadjust(uint8(IMG_post)));
+figure, imshow(imadjust(uint8(IMG_pre)));
 figure, imshow(imadjust(new_IMG_post));
 figure, imshow(imadjust(new_IMG_pre));
 %figure, imshow(imadjust(IMG_inundated));
@@ -31,10 +31,10 @@ IMG_inundated_mode=modefilt(IMG_inundated,[3,3]); %mode filter to reduce noise
 figure, imshow(imadjust(IMG_inundated_mode));
 
 %save images
-%imwrite(new_IMG_post,'IMG_post_eastMid.tif','tif');
-%imwrite(new_IMG_pre,'IMG_pre_eastMid.tif','tif');
-%imwrite(IMG_inundated,'IMG_inundated_eastMid.tif','tif');
-%imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tif','tif');
+imwrite(new_IMG_post,'IMG_post_eastMid.tif','tif');
+imwrite(new_IMG_pre,'IMG_pre_eastMid.tif','tif');
+imwrite(IMG_inundated,'IMG_inundated_eastMid.tif','tif');
+imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tif','tif');
 
 %find area
 pre_area=findArea(new_IMG_pre,r,c)/(10.^6);
@@ -43,9 +43,9 @@ inundated_area=findArea(IMG_inundated_mode,r,c)/(10.^6);
 s1=strcat("Total image area: ", num2str(r*c/(10.^4)), " sq km");
 s2=strcat("Natural water body area: ",num2str(pre_area)," sq km");
 s3=strcat("Inundated area: ",num2str(inundated_area)," sq km");
-%writelines(s1,"area_eastMid.txt"); 
-%writelines(s2,"area_eastMid.txt",WriteMode="append");
-%writelines(s3,"area_eastMid.txt",WriteMode="append");
+writelines(s1,"area_eastMid.txt"); 
+writelines(s2,"area_eastMid.txt",WriteMode="append");
+writelines(s3,"area_eastMid.txt",WriteMode="append");
 
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
