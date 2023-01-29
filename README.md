@@ -1,5 +1,5 @@
 # Inundated_Area_Identification
-## Version 3
+## Version 2
 ### Key Points are:
 - Image pixel values converted into 0-1 range
 - Minimum pixel, Vmin intensity value is found from the whole image
