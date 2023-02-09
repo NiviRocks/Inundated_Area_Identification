@@ -1,8 +1,9 @@
 IMG_post = double(imread('subsetpost.tif'));
 IMG_pre = double(imread('subsetpre.tif'));
-
-%IMG_post=IMG_post(5000:6500,5000:5500); %cropping a portion
-%IMG_pre=IMG_pre(5000:6500,5000:5500);
+%inundated_result = im2double(imread('inundation_image.tif'));
+%IMG_post=IMG_post(3000:3800,4000:4600); %cropping a portion
+%IMG_pre=IMG_pre(3000:3800,4000:4600);
+%inundated_result=inundated_result(3000:3800,4000:4600);
 
 [r,c] = size(IMG_pre); %size of post and pre image is the same
 
@@ -12,11 +13,10 @@ t_pre=std(IMG_pre,0,"all")/2;
 %find minimum pixel value
 Vmin_post = min(IMG_post,[],"all");
 Vmin_pre = min(IMG_pre,[],"all");
-fprintf("Pre Vmin: %f Post Vmin: %f\nPre t: %f Post t: %f\n",Vmin_pre,Vmin_post,t_pre,t_post);
 
-fprintf("---------post---------\n");
+fprintf("Post Vmin: %f Post t: %f\n---------post---------\n",Vmin_post,t_post);
 new_IMG_post=main(IMG_post,r,c,Vmin_post,t_post);
-fprintf("---------pre----------\n");
+fprintf("Pre Vmin: %f Pre t: %f\n---------pre----------\n",Vmin_pre,t_pre);
 new_IMG_pre=main(IMG_pre,r,c,Vmin_pre,t_pre);
 fprintf("Done\n");
 IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
@@ -29,6 +29,7 @@ figure, imshow(imadjust(new_IMG_pre));
 
 IMG_inundated_mode=modefilt(IMG_inundated,[3,3]); %mode filter to reduce noise
 figure, imshow(imadjust(IMG_inundated_mode));
+%figure, imshow(imadjust(inundated_result));
 
 %save images
 imwrite(new_IMG_post,'IMG_post_eastMid.tif','tif');
@@ -54,7 +55,7 @@ function [new_IMG]=main(IMG,r,c,Vmin,t)
         for y = 1:c
             if ~new_IMG(x,y) %if pixel not marked water
                 if IMG(x,y)>=Vmin && IMG(x,y)<=t+Vmin %check within threshold
-                    [new_t]=threshold_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
+                    [new_t]=threshold_sd_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
                     if new_t ~=-1 % new_t == -1 then pixel is not water
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
@@ -70,9 +71,9 @@ end
 % function to check if pixel is water
 function [result,mean] = isWater(IMG,r,c,x,y,t,Vmin)
     count=0; mean=0;
-    for j = -2:2 % window row
-        for k = -2:2 % window col            
-            if (x+j)>1 && (x+j)<r && (y+k)>1 && (y+k)<c % if pixel within image
+    for j = -3:3 % window row
+        for k = -3:3 % window col     
+            if (x+j)>1 && (x+j)<r && (y+k)>1 && (y+k)<c
                 pxl_value=IMG(x+j,y+k);
                 if pxl_value>=Vmin && pxl_value<=t+Vmin  % if pixel value in [Vmin,Vmin+t]
                     count = count+1; % count water pixels
@@ -82,7 +83,7 @@ function [result,mean] = isWater(IMG,r,c,x,y,t,Vmin)
         end
     end
     mean=mean/count;
-    if count>=12 % if water pixel more than 50% in window
+    if count>=25 % if water pixel more than 50% in window
         result = 1; % true
     else 
         result = 0; % false
@@ -90,20 +91,41 @@ function [result,mean] = isWater(IMG,r,c,x,y,t,Vmin)
 end 
 
 % function for threshold shifting
-function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
-    new_t=t+1.5;
-    [isw1,m1]=isWater(IMG,r,c,x,y,t,Vmin); %mean for global threshold
-    [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin); %mean for t1'
-    if isw1==0 && isw2==0 %if pixel not water return -1
-        new_t=-1;
+function [new_t] = threshold_sd_shift(IMG,r,c,x,y,t,Vmin)
+    new_t=sd(IMG,x,y,r,c); %std of window
+    if new_t>t
+        new_t=t;
     else
-        while abs(m1-m2)>=0.1 && isw1 && isw2 
-            m1=m2; isw1=isw2;
-            new_t=new_t+1.5;
-            [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin);
+        [isw1,m1]=isWater(IMG,r,c,x,y,new_t,Vmin); %mean for t1'
+        new_t=new_t+1;
+        [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin); %mean for t2'
+    
+        if isw1==0 || isw2==0 %if pixel not water return -1
+            new_t=-1;
+        else
+            while abs(m1-m2)>=0.1 && new_t <= t && isw1 && isw2 
+                m1=m2; isw1=isw2;
+                new_t=new_t+1;
+                [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin);
+                fprintf("m1-m2: %f\n",abs(m1-m2));
+            end
         end
     end
 end
+
+%function for sd
+function [result]=sd(IMG,x,y,r,c)
+    arr=[];
+    for j=-3:3
+        for k=-3:3
+            if (x+j)>1 && (x+j)<r && (y+k)>1 && (y+k)<c
+                arr=[arr,IMG(x+j,y+k)];
+            end
+        end
+    end
+    result=std(arr,0)/2;
+end
+
 
 %function for area of inundated image
 function [area]=findArea(IMG,r,c)
@@ -116,3 +138,4 @@ function [area]=findArea(IMG,r,c)
         end
     end
 end
+    
