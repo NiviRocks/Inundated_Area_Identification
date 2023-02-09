@@ -11,11 +11,8 @@
 - Step 8: Else repeat from step 3 to step 6.
 - Step 9: With the final tn’ (local threshold) grow the region.
 #
-P.s.: Both global theshold _t_ and mean difference acceptable range _x_ are choosen by trial and error
+P.s.: mean difference acceptable range _x_ are choosen by trial and error
 
 ### Limitation
-- Causes overfitting
+- Cannot Identify small regions or cluster of small regions
 
-### Follow Up Work
-- Need for a algorithm to determine _t_ without trial and error method.
-- Reduce overfitting
