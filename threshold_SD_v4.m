@@ -1,9 +1,9 @@
-IMG_post = double(imread('posteastmid.tif'));
-IMG_pre = double(imread('preeastmid_output.tif'));
-inundated_result = im2double(imread('inundation_image.tif'));
-IMG_post=IMG_post(3000:3800,4000:4600); %cropping a portion
-IMG_pre=IMG_pre(3000:3800,4000:4600);
-inundated_result=inundated_result(3000:3800,4000:4600);
+IMG_post = double(imread('subsetpost.tif'));
+IMG_pre = double(imread('subsetpre.tif'));
+%inundated_result = im2double(imread('inundation_image.tif'));
+%IMG_post=IMG_post(3000:3800,4000:4600); %cropping a portion
+%IMG_pre=IMG_pre(3000:3800,4000:4600);
+%inundated_result=inundated_result(3000:3800,4000:4600);
 
 [r,c] = size(IMG_pre); %size of post and pre image is the same
 
@@ -29,13 +29,13 @@ figure, imshow(imadjust(new_IMG_pre));
 
 IMG_inundated_mode=modefilt(IMG_inundated,[3,3]); %mode filter to reduce noise
 figure, imshow(imadjust(IMG_inundated_mode));
-figure, imshow(imadjust(inundated_result));
+%figure, imshow(imadjust(inundated_result));
 
 %save images
-%imwrite(new_IMG_post,'IMG_post_eastMid.tif','tif');
-%imwrite(new_IMG_pre,'IMG_pre_eastMid.tif','tif');
-%imwrite(IMG_inundated,'IMG_inundated_eastMid.tif','tif');
-%imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tif','tif');
+imwrite(new_IMG_post,'IMG_post_eastMid.tif','tif');
+imwrite(new_IMG_pre,'IMG_pre_eastMid.tif','tif');
+imwrite(IMG_inundated,'IMG_inundated_eastMid.tif','tif');
+imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tif','tif');
 
 %find area
 pre_area=findArea(new_IMG_pre,r,c)/(10.^6);
@@ -44,9 +44,9 @@ inundated_area=findArea(IMG_inundated_mode,r,c)/(10.^6);
 s1=strcat("Total image area: ", num2str(r*c/(10.^4)), " sq km");
 s2=strcat("Natural water body area: ",num2str(pre_area)," sq km");
 s3=strcat("Inundated area: ",num2str(inundated_area)," sq km");
-%writelines(s1,"area_eastMid.txt"); 
-%writelines(s2,"area_eastMid.txt",WriteMode="append");
-%writelines(s3,"area_eastMid.txt",WriteMode="append");
+writelines(s1,"area_eastMid.txt"); 
+writelines(s2,"area_eastMid.txt",WriteMode="append");
+writelines(s3,"area_eastMid.txt",WriteMode="append");
 
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
@@ -54,18 +54,12 @@ function [new_IMG]=main(IMG,r,c,Vmin,t)
     for x = 1:r
         for y = 1:c
             if ~new_IMG(x,y) %if pixel not marked water
-                %fprintf("x %d y %d\n",x,y);
                 if IMG(x,y)>=Vmin && IMG(x,y)<=t+Vmin %check within threshold
                     [new_t]=threshold_sd_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
                     if new_t ~=-1 % new_t == -1 then pixel is not water
-                        %fprintf("new t %d\n",new_t);
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
-                        if mod(x,1000)==0 && mod(y,500)==0
-                            %figure, imshow(imadjust(new_IMG));
-                        end
                     end
-                    %fprintf("out\n");
                 end
             end
         end
@@ -80,7 +74,6 @@ function [result,mean] = isWater(IMG,r,c,x,y,t,Vmin)
     for j = -3:3 % window row
         for k = -3:3 % window col     
             if (x+j)>1 && (x+j)<r && (y+k)>1 && (y+k)<c
-                %fprintf("x %d j %d y %d k %d\n",x,j,y,k);
                 pxl_value=IMG(x+j,y+k);
                 if pxl_value>=Vmin && pxl_value<=t+Vmin  % if pixel value in [Vmin,Vmin+t]
                     count = count+1; % count water pixels
@@ -100,7 +93,6 @@ end
 % function for threshold shifting
 function [new_t] = threshold_sd_shift(IMG,r,c,x,y,t,Vmin)
     new_t=sd(IMG,x,y,r,c); %std of window
-    fprintf("x %d y %d std: %f\n",x,y,new_t);
     if new_t>t
         new_t=t;
     else
@@ -111,14 +103,12 @@ function [new_t] = threshold_sd_shift(IMG,r,c,x,y,t,Vmin)
         if isw1==0 || isw2==0 %if pixel not water return -1
             new_t=-1;
         else
-            %fprintf("IN ... x %d y %d md %f\n",x,y,abs(m1-m2));
             while abs(m1-m2)>=0.1 && new_t <= t && isw1 && isw2 
                 m1=m2; isw1=isw2;
                 new_t=new_t+1;
                 [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin);
                 fprintf("m1-m2: %f\n",abs(m1-m2));
             end
-            fprintf("x %d y %d new t %f\n",x,y,new_t);
         end
     end
 end
