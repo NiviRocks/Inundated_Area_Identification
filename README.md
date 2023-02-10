@@ -17,3 +17,5 @@ P.s.: mean difference acceptable range _x_ are choosen by trial and error
 ### Limitation
 - Cannot Identify small regions or cluster of small regions
 
+### Conclusion
+- Final Solution of the Project.
