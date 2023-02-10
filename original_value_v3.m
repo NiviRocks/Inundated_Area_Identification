@@ -1,8 +1,10 @@
-IMG_post = double(imread('subsetpost.tif'));
-IMG_pre = double(imread('subsetpre.tif'));
-%fprintf("%d %d\n",IMG_pre(300,200),IMG_post(300,200));
-%IMG_post=IMG_post(5000:6500,5000:5500); %cropping a portion
-%IMG_pre=IMG_pre(5000:6500,5000:5500);
+IMG_post = double(imread('posteastmid.tif'));
+IMG_pre = double(imread('preeastmid_output.tif'));
+inundated_result = im2double(imread('inundation_image.tif'));
+row=4200; col=6200;
+IMG_post=IMG_post(row:col,row:col); %cropping a portion
+IMG_pre=IMG_pre(row:col,row:col);
+inundated_result=inundated_result(row:col,row:col);
 
 [r,c] = size(IMG_pre); %size of post and pre image is the same
 
@@ -12,40 +14,50 @@ t_pre=std(IMG_pre,0,"all")/2;
 %find minimum pixel value
 Vmin_post = min(IMG_post,[],"all");
 Vmin_pre = min(IMG_pre,[],"all");
-fprintf("Pre Vmin: %f Post Vmin: %f\nPre t: %f Post t: %f\n",Vmin_pre,Vmin_post,t_pre,t_post);
 
-fprintf("---------post---------\n");
-new_IMG_post=main(IMG_post,r,c,Vmin_post,t_post);
-fprintf("---------pre----------\n");
+figure, imshow(imadjust(uint8(IMG_pre)));
+figure, imshow(imadjust(uint8(IMG_post)));
+
+fprintf("---------pre---------\nPre Vmin: %f Pre t: %f\n------------------------\n",Vmin_pre,t_pre);
 new_IMG_pre=main(IMG_pre,r,c,Vmin_pre,t_pre);
+fprintf("---------post----------\nPost Vmin: %f Post t: %f\n------------------------\n",Vmin_post,t_post);
+new_IMG_post=main(IMG_post,r,c,Vmin_post,t_post);
 fprintf("Done\n");
 IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
 
-%figure, imshow(imadjust(uint8(IMG_post)));
-%figure, imshow(imadjust(uint8(IMG_pre)));
-figure, imshow(imadjust(new_IMG_post));
-figure, imshow(imadjust(new_IMG_pre));
+
+%figure, imshow(imadjust(new_IMG_pre));
+%figure, imshow(imadjust(new_IMG_post));
 %figure, imshow(imadjust(IMG_inundated));
 
-IMG_inundated_mode=modefilt(IMG_inundated,[3,3]); %mode filter to reduce noise
-figure, imshow(imadjust(IMG_inundated_mode));
+IMG_inundated_mode=modefilt(IMG_inundated,[5,5]); %mode filter to reduce noise
+%figure, imshow(imadjust(IMG_inundated_mode));
+%figure, imshow(imadjust(inundated_result));
 
 %save images
-%imwrite(new_IMG_post,'IMG_post_eastMid.tif','tif');
-%imwrite(new_IMG_pre,'IMG_pre_eastMid.tif','tif');
-%imwrite(IMG_inundated,'IMG_inundated_eastMid.tif','tif');
-%imwrite(IMG_inundated_mode,'IMG_inundated_mode_eastMid.tif','tif');
+imwrite(uint8(IMG_post),strcat('IMG_post_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(uint8(IMG_pre),strcat('IMG_pre_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(new_IMG_post,strcat('water_post_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(new_IMG_pre,strcat('water_pre_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(IMG_inundated_mode,strcat('inundated_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(inundated_result,strcat('inundated_result_',string(row),'x',string(col),'.tif'),'tif');
 
 %find area
 pre_area=findArea(new_IMG_pre,r,c)/(10.^6);
 inundated_area=findArea(IMG_inundated_mode,r,c)/(10.^6); 
+%find error percentage
+inundated_res_area=findArea(inundated_result,r,c)/(10.^6);
 %write area in file
+s0=strcat("----------Image eastmid----------Size :",string(row),"x",string(col));
 s1=strcat("Total image area: ", num2str(r*c/(10.^4)), " sq km");
 s2=strcat("Natural water body area: ",num2str(pre_area)," sq km");
-s3=strcat("Inundated area: ",num2str(inundated_area)," sq km");
-%writelines(s1,"area_eastMid.txt"); 
-%writelines(s2,"area_eastMid.txt",WriteMode="append");
-%writelines(s3,"area_eastMid.txt",WriteMode="append");
+s3=strcat("Calculated Inundated area: ",num2str(inundated_area)," sq km");
+s4=strcat("Actual Inundated area: ",num2str(inundated_res_area)," sq km");
+writelines(s0,"v6_text_output.txt",WriteMode="append");
+writelines(s1,"v6_text_output.txt",WriteMode="append"); 
+writelines(s2,"v6_text_output.txt",WriteMode="append"); 
+writelines(s3,"v6_text_output.txt",WriteMode="append");
+writelines(s4,"v6_text_output.txt",WriteMode="append"); 
 
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
@@ -60,8 +72,8 @@ function [new_IMG]=main(IMG,r,c,Vmin,t)
                         %fprintf("new t %d\n",new_t);
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
-                        if mod(x,1000)==0 && mod(y,500)==0
-                            %figure, imshow(imadjust(new_IMG));
+                        if mod(x,5)==0 && mod(y,200)==0
+                            figure, imshow(imadjust(new_IMG));
                         end
                     end
                     %fprintf("out\n");
@@ -97,7 +109,7 @@ end
 
 % function for threshold shifting
 function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
-    new_t=t+1.5;
+    new_t=t+1;
     [isw1,m1]=isWater(IMG,r,c,x,y,t,Vmin); %mean for global threshold
     [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin); %mean for t1'
     if isw1==0 && isw2==0 %if pixel not water return -1
@@ -106,7 +118,7 @@ function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
         %fprintf("IN ... x %d y %d md %f\n",x,y,abs(m1-m2));
         while abs(m1-m2)>=0.1 && isw1 && isw2 
             m1=m2; isw1=isw2;
-            new_t=new_t+1.5;
+            new_t=new_t+1;
             [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin);
             fprintf("m1-m2: %f \n",abs(m1-m2));
         end
