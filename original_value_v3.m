@@ -65,18 +65,15 @@ function [new_IMG]=main(IMG,r,c,Vmin,t)
     for x = 1:r
         for y = 1:c
             if ~new_IMG(x,y) %if pixel not marked water
-                %fprintf("x %d y %d\n",x,y);
                 if IMG(x,y)>=Vmin && IMG(x,y)<=t+Vmin %check within threshold
                     [new_t]=threshold_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
                     if new_t ~=-1 % new_t == -1 then pixel is not water
-                        %fprintf("new t %d\n",new_t);
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
                         if mod(x,5)==0 && mod(y,200)==0
                             figure, imshow(imadjust(new_IMG));
                         end
                     end
-                    %fprintf("out\n");
                 end
             end
         end
@@ -115,14 +112,11 @@ function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
     if isw1==0 && isw2==0 %if pixel not water return -1
         new_t=-1;
     else
-        %fprintf("IN ... x %d y %d md %f\n",x,y,abs(m1-m2));
         while abs(m1-m2)>=0.1 && isw1 && isw2 
             m1=m2; isw1=isw2;
             new_t=new_t+1;
             [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin);
-            fprintf("m1-m2: %f \n",abs(m1-m2));
         end
-        fprintf("x %d y %d new t %f\n",x,y,new_t);
     end
 end
 
