@@ -1,6 +1,9 @@
 # Inundated_Area_Identification
 ## Version 4
-### Key Points are:
+### Hypothesis
+- SD of the whole image must be greater than the SD of the window.
+- Thus, the local threshold must be first assumed as SD of the window and then it's value is incremented as per the below Algorithm.
+### Algorith :
 - Step 1: Find minimum pixel value (Vmin) in image/matrix.
 - Step 2: Set threshold (t) to SD of the whole image.
 - Step 3: Find water pixel p and draw a window around pixel p.
@@ -15,4 +18,9 @@ P.s.: mean difference acceptable range _x_ are choosen by trial and error
 
 ### Limitation
 - Cannot Identify small regions or cluster of small regions
+- Causes Overfitting (for large water region)
+- Not better than Version 3
 
+### Conclusion
+- SD of window can be greater than SD of the whole image
+- Hypothesis is proved as false.
