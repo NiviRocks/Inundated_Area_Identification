@@ -35,29 +35,29 @@ IMG_inundated_mode=modefilt(IMG_inundated,[5,5]); %mode filter to reduce noise
 %figure, imshow(imadjust(inundated_result));
 
 %save images
-imwrite(uint8(IMG_post),'IMG_post_.tif','tif');
-imwrite(uint8(IMG_pre),strcat('IMG_pre_',string(row),'x',string(col),'.tif'),'tif');
-imwrite(new_IMG_post,strcat('water_post_',string(row),'x',string(col),'.tif'),'tif');
-imwrite(new_IMG_pre,strcat('water_pre_',string(row),'x',string(col),'.tif'),'tif');
-imwrite(IMG_inundated_mode,strcat('inundated_',string(row),'x',string(col),'.tif'),'tif');
-imwrite(inundated_result,strcat('inundated_result_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(uint8(IMG_post),'IMG_post.tif','tif');
+imwrite(uint8(IMG_pre),'IMG_pre.tif','tif');
+imwrite(new_IMG_post,'water_post'.tif','tif');
+imwrite(new_IMG_pre,'water_pre.tif'),'tif');
+imwrite(IMG_inundated_mode,'inundated.tif'),'tif');
+%imwrite(inundated_result,'inundated_result.tif','tif');
 
 %find area
 pre_area=findArea(new_IMG_pre,r,c)/(10.^6);
 inundated_area=findArea(IMG_inundated_mode,r,c)/(10.^6); 
 %find error percentage
-inundated_res_area=findArea(inundated_result,r,c)/(10.^6);
+%inundated_res_area=findArea(inundated_result,r,c)/(10.^6);
 %write area in file
 s0=strcat("----------Image eastmid----------Size :",string(row),"x",string(col));
 s1=strcat("Total image area: ", num2str(r*c/(10.^4)), " sq km");
 s2=strcat("Natural water body area: ",num2str(pre_area)," sq km");
 s3=strcat("Calculated Inundated area: ",num2str(inundated_area)," sq km");
-s4=strcat("Actual Inundated area: ",num2str(inundated_res_area)," sq km");
+%s4=strcat("Actual Inundated area: ",num2str(inundated_res_area)," sq km");
 writelines(s0,"v6_text_output.txt",WriteMode="append");
 writelines(s1,"v6_text_output.txt",WriteMode="append"); 
 writelines(s2,"v6_text_output.txt",WriteMode="append"); 
 writelines(s3,"v6_text_output.txt",WriteMode="append");
-writelines(s4,"v6_text_output.txt",WriteMode="append"); 
+%writelines(s4,"v6_text_output.txt",WriteMode="append"); 
 
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
