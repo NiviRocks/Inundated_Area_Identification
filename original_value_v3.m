@@ -1,10 +1,10 @@
-IMG_post = double(imread('posteastmid.tif'));
-IMG_pre = double(imread('preeastmid_output.tif'));
-inundated_result = im2double(imread('inundation_image.tif'));
-row=4200; col=6200;
-IMG_post=IMG_post(row:col,row:col); %cropping a portion
-IMG_pre=IMG_pre(row:col,row:col);
-inundated_result=inundated_result(row:col,row:col);
+IMG_post = double(imread('subsetpost.tif'));
+IMG_pre = double(imread('subsetpre.tif'));
+%inundated_result = im2double(imread('inundation_image.tif'));
+%row=4200; col=6200;
+%IMG_post=IMG_post(row:col,row:col); %cropping a portion
+%IMG_pre=IMG_pre(row:col,row:col);
+%inundated_result=inundated_result(row:col,row:col);
 
 [r,c] = size(IMG_pre); %size of post and pre image is the same
 
@@ -35,7 +35,7 @@ IMG_inundated_mode=modefilt(IMG_inundated,[5,5]); %mode filter to reduce noise
 %figure, imshow(imadjust(inundated_result));
 
 %save images
-imwrite(uint8(IMG_post),strcat('IMG_post_',string(row),'x',string(col),'.tif'),'tif');
+imwrite(uint8(IMG_post),'IMG_post_.tif','tif');
 imwrite(uint8(IMG_pre),strcat('IMG_pre_',string(row),'x',string(col),'.tif'),'tif');
 imwrite(new_IMG_post,strcat('water_post_',string(row),'x',string(col),'.tif'),'tif');
 imwrite(new_IMG_pre,strcat('water_pre_',string(row),'x',string(col),'.tif'),'tif');
