@@ -1,37 +1,39 @@
 IMG_post = double(imread('posteastmid.tif'));
 IMG_pre = double(imread('preeastmid_output.tif'));
 inundated_result = im2double(imread('inundation_image.tif'));
-row1=5000; row2=6000; col1=2000; col2=3400;
-IMG_post=IMG_post(row1:row2,col1:col2); %cropping a portion
-IMG_pre=IMG_pre(row1:row2,col1:col2);
-inundated_result=inundated_result(row1:row2,col1:col2);
 
+row1=3900; row2=4900; col1=5500; col2=6500;
+IMG_post=IMG_post(col1:col2,row1:row2); %cropping a portion
+IMG_pre=IMG_pre(col1:col2,row1:row2);
+inundated_result=inundated_result(col1:col2,row1:row2);
 [r,c] = size(IMG_pre); %size of post and pre image is the same
 
 %assumed threshold (-2sd)
 t_post=std(IMG_post,0,"all")/2; 
 t_pre=std(IMG_pre,0,"all")/2;
+
 %find minimum pixel value
 Vmin_post = min(IMG_post,[],"all");
 Vmin_pre = min(IMG_pre,[],"all");
+
 figure, imshow(imadjust(uint8(IMG_pre)));
 figure, imshow(imadjust(uint8(IMG_post)));
 
 fprintf("---------pre---------\nPre Vmin: %f Pre t: %f\n------------------------\n",Vmin_pre,t_pre);
-new_IMG_pre=main(IMG_pre,r,c,Vmin_pre,t_pre);
+new_IMG_pre=modefilt(main(IMG_pre,r,c,Vmin_pre,t_pre),[5,5]); %mode filter 
 fprintf("---------post----------\nPost Vmin: %f Post t: %f\n------------------------\n",Vmin_post,t_post);
-new_IMG_post=main(IMG_post,r,c,Vmin_post,t_post);
+new_IMG_post=modefilt(main(IMG_post,r,c,Vmin_post,t_post),[5,5]); %mode filter 
 fprintf("Done\n");
-IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
 
+IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
 figure, imshow(imadjust(new_IMG_pre));
 figure, imshow(imadjust(new_IMG_post));
 
 % remove small clusters - less than 100 pxl 
 % 8 here represent adjacent pixel connectivity - those share edges 
-IMG_inundated_final = bwareaopen(IMG_inundated,101,8) ;
-IMG_inundated_final=modefilt(IMG_inundated_final,[3,3]); %mode filter to reduce noise
+IMG_inundated_final = bwareaopen(IMG_inundated,100,8) ;
 IMG_inundated_final = imfill(IMG_inundated_final,8,"holes"); % fills in binary image where 8 specifies connectivity
+IMG_inundated_final = bwareaopen(IMG_inundated_final,50,4) ;
 
 % display image
 figure, imshow(imadjust(uint8(IMG_inundated_final)));
@@ -56,11 +58,11 @@ s1=strcat("Total image area: ", num2str(r*c/(10.^4)), " sq km");
 s2=strcat("Natural water body area: ",num2str(pre_area)," sq km");
 s3=strcat("Calculated Inundated area: ",num2str(inundated_area)," sq km");
 s4=strcat("Actual Inundated area: ",num2str(inundated_res_area)," sq km");
-writelines(s0,"v3_1_text_output.txt");
+writelines(s0,"v3_1_text_output.txt",WriteMode="append");
 writelines(s1,"v3_1_text_output.txt",WriteMode="append"); 
 writelines(s2,"v3_1_text_output.txt",WriteMode="append"); 
 writelines(s3,"v3_1_text_output.txt",WriteMode="append");
-writelines(s4,"v3_1_text_output.txt",WriteMode="append"); 
+writelines(s4,"v3_1_text_output.txt",WriteMode="append");
 
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
