@@ -1,7 +1,9 @@
+%--------------------------------------------------Read Image---------------------------------------------------------------------
 IMG_post = double(imread('posteastmid.tif'));
 IMG_pre = double(imread('preeastmid_output.tif'));
 inundated_result = im2double(imread('inundation_image.tif'));
 
+%--------------------------------------------------Preprocessing Image-------------------------------------------------------------
 row1=3900; row2=4900; col1=5500; col2=6500;
 IMG_post=IMG_post(col1:col2,row1:row2); %cropping a portion
 IMG_pre=IMG_pre(col1:col2,row1:row2);
@@ -16,6 +18,7 @@ t_pre=std(IMG_pre,0,"all")/2;
 Vmin_post = min(IMG_post,[],"all");
 Vmin_pre = min(IMG_pre,[],"all");
 
+%--------------------------------------------------Display and Save Image------------------------------------------------------------
 figure, imshow(imadjust(uint8(IMG_pre)));
 figure, imshow(imadjust(uint8(IMG_post)));
 
@@ -64,6 +67,7 @@ writelines(s2,"v3_1_text_output.txt",WriteMode="append");
 writelines(s3,"v3_1_text_output.txt",WriteMode="append");
 writelines(s4,"v3_1_text_output.txt",WriteMode="append");
 
+%--------------------------------------------------Functions Image-----------------------------------------------------------------
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
     new_IMG=zeros(r,c);
