@@ -32,6 +32,7 @@ IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
 figure, imshow(imadjust(new_IMG_pre));
 figure, imshow(imadjust(new_IMG_post));
 
+%--------------------------------------------------Output Enhancement Image-----------------------------------------------------------
 % remove small clusters - less than 100 pxl 
 % 8 here represent adjacent pixel connectivity - those share edges 
 IMG_inundated_final = bwareaopen(IMG_inundated,100,8) ;
