@@ -1,5 +1,5 @@
 # Inundated_Area_Identification
-## Version 3
+## Version 3.1
 ### Algorithm:
 - Step 1: Find minimum pixel value (Vmin) in image/matrix.
 - Step 2: Set Global threshold (t) to SD of the whole image.
