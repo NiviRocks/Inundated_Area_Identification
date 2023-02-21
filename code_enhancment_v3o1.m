@@ -32,7 +32,7 @@ IMG_inundated=new_IMG_post-new_IMG_pre; % post-pre is inundated area
 figure, imshow(imadjust(new_IMG_pre));
 figure, imshow(imadjust(new_IMG_post));
 
-%--------------------------------------------------Output Enhancement Image-----------------------------------------------------------
+%--------------------------------------------------Output Enhancement-----------------------------------------------------------------
 % remove small clusters - less than 100 pxl 
 % 8 here represent adjacent pixel connectivity - those share edges 
 IMG_inundated_final = bwareaopen(IMG_inundated,100,8) ;
@@ -68,25 +68,19 @@ writelines(s2,"v3_1_text_output.txt",WriteMode="append");
 writelines(s3,"v3_1_text_output.txt",WriteMode="append");
 writelines(s4,"v3_1_text_output.txt",WriteMode="append");
 
-%--------------------------------------------------Functions Image-----------------------------------------------------------------
+%--------------------------------------------------Functions----------------------------------------------------------------------
 %function main
 function [new_IMG]=main(IMG,r,c,Vmin,t)
     new_IMG=zeros(r,c);
     for x = 1:r
         for y = 1:c
             if ~new_IMG(x,y) %if pixel not marked water
-                %fprintf("x %d y %d\n",x,y);
                 if IMG(x,y)>=Vmin && IMG(x,y)<=t+Vmin %check within threshold
                     [new_t]=threshold_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
                     if new_t ~=-1 % new_t == -1 then pixel is not water
-                        %fprintf("new t %d\n",new_t);
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
-                        if mod(x,5)==0 && mod(y,200)==0
-                            figure, imshow(imadjust(new_IMG));
-                        end
                     end
-                    %fprintf("out\n");
                 end
             end
         end
@@ -125,7 +119,6 @@ function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
     if isw1==0 && isw2==0 %if pixel not water return -1
         new_t=-1;
     else
-        %fprintf("IN ... x %d y %d md %f\n",x,y,abs(m1-m2));
         while abs(m1-m2)>=0.1 && isw1 && isw2 
             m1=m2; isw1=isw2;
             new_t=new_t+1;
