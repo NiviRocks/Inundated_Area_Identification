@@ -76,7 +76,7 @@ function [new_IMG]=main(IMG,r,c,Vmin,t)
         for y = 1:c
             if ~new_IMG(x,y) %if pixel not marked water
                 if IMG(x,y)>=Vmin && IMG(x,y)<=t+Vmin %check within threshold
-                    [new_t]=threshold_shift(IMG,r,c,x,y,t,Vmin); %get new threshold
+                    [new_t]=local_threshold(IMG,r,c,x,y,t,Vmin); %get new threshold
                     if new_t ~=-1 % new_t == -1 then pixel is not water
                         J1 = regiongrown(IMG,x,y,new_t); %using new local threshold
                         new_IMG=new_IMG+J1;
@@ -112,7 +112,7 @@ function [result,mean] = isWater(IMG,r,c,x,y,t,Vmin)
 end 
 
 % function for threshold shifting
-function [new_t] = threshold_shift(IMG,r,c,x,y,t,Vmin)
+function [new_t] = local_threshold(IMG,r,c,x,y,t,Vmin)
     new_t=t+1;
     [isw1,m1]=isWater(IMG,r,c,x,y,t,Vmin); %mean for global threshold
     [isw2,m2]=isWater(IMG,r,c,x,y,new_t,Vmin); %mean for t1'
